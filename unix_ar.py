@@ -325,7 +325,7 @@ class ArFile(object):
         self._check('r')
         # Iterate on _name_map instead of plain _entries so we don't extract
         # multiple files with the same name, just the last one
-        for index in self._name_map.values():
+        for index in list(self._name_map.values()):
             member = self._entries[index]
             self._extract(member, os.path.join(utf8(path), member.name))
 
