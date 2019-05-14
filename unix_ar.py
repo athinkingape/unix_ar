@@ -279,6 +279,31 @@ class ArFile(object):
             index = self._name_map[utf8(member)]
             return self._entries[index].__copy__()
 
+    def _read(self, member):
+        self._file.seek(member.offset + 60, 0)
+        data = self._file.read(member.size)
+        return data
+
+    def read(self, member):
+        """
+        Read a single file from the archive into an in-memory buffer.
+
+        :param member: Either a file name or an :class:`unix_ar.ArInfo` object
+            to extract.
+        :type member: bytes | unicode | unix_ar.ArInfo
+        """
+        self._check('r')
+        actualmember = self.getinfo(member)
+        if isinstance(member, ArInfo):
+            if member.offset is None:
+                member.offset = actualmember.offset
+            if member.size > actualmember.size:
+                member.size = actualmember.size
+        else:
+            member = actualmember
+        data = self._read(member)
+        return data
+
     def _extract(self, member, path):
         self._file.seek(member.offset + 60, 0)
         with _open(path, 'wb') as fp:
